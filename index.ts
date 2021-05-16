@@ -11,9 +11,10 @@ type Schema = {
     models: {
       [key: string]: {
         doits: {
-          [key: string]: { details: { get?: unknown; set?: unknown } };
+          [key: string]: { details: { get?: unknown; set?: unknown } | never };
         };
       };
+      funreq;
     };
   };
 };
@@ -60,16 +61,20 @@ export const funreq = <T extends Schema>() => {
     GET extends DOIT[DOITK]["details"]["get"],
     SET extends DOIT[DOITK]["details"]["set"]
   >(
-    body: {
-      wants: {
-        model: MODELK;
-        doit: DOITK;
-      };
-      details?: {
-        set?: SET;
-        get?: GET;
-      };
-    },
+    body: DOIT[DOITK] extends { details: never }
+      ? {
+          wants: {
+            model: MODELK;
+            doit: DOITK;
+          };
+        }
+      : {
+          wants: {
+            model: MODELK;
+            doit: DOITK;
+          };
+          details: { get?: GET; set?: SET };
+        },
     headers?: HeadersInit
   ) =>
     await fetch(setting.url, {
@@ -86,3 +91,8 @@ export const funreq = <T extends Schema>() => {
     api,
   };
 };
+
+// const funApi = funreq<FunQL>();
+// funApi.api({
+//   wants: { model: "Brand", doit: "update" },
+// });
