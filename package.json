@@ -2,8 +2,10 @@
   "name": "funreq",
   "version": "1.0.0",
   "description": "an http to send and recive data from funql backend",
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "scripts": {
+    "build": "rimraf ./dist && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/funql/funreq/issues"
   },
-  "homepage": "https://github.com/funql/funreq#readme"
+  "homepage": "https://github.com/funql/funreq#readme",
+  "devDependencies": {
+    "rimraf": "^3.0.2"
+  }
 }
