@@ -14,7 +14,6 @@ type Schema = {
           [key: string]: { details: { get?: unknown; set?: unknown } | never };
         };
       };
-      funreq;
     };
   };
 };
@@ -91,8 +90,3 @@ export const funreq = <T extends Schema>() => {
     api,
   };
 };
-
-// const funApi = funreq<FunQL>();
-// funApi.api({
-//   wants: { model: "Brand", doit: "update" },
-// });
