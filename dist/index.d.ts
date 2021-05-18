@@ -21,7 +21,7 @@ declare type Schema = {
 };
 export declare const funreq: <T extends Schema>() => {
     setup: (data: FunReq) => void;
-    api: <SCHEMA extends T, MODEL extends SCHEMA["schema"]["models"], MODELK extends keyof MODEL, DOIT extends MODEL[MODELK]["doits"], DOITK extends keyof DOIT, GET extends DOIT[DOITK]["details"]["get"], SET extends DOIT[DOITK]["details"]["set"]>(body: DOIT[DOITK] extends {
+    api: <SCHEMA extends T, MODEL extends SCHEMA["schema"]["models"], MODELK extends keyof MODEL, DOIT extends MODEL[MODELK]["doits"], DOITK extends keyof DOIT>(body: DOIT[DOITK] extends {
         details: never;
     } ? {
         wants: {
@@ -33,10 +33,7 @@ export declare const funreq: <T extends Schema>() => {
             model: MODELK;
             doit: DOITK;
         };
-        details: {
-            get?: GET | undefined;
-            set?: SET | undefined;
-        };
+        details: DOIT[DOITK]["details"];
     }, headers?: HeadersInit | undefined) => Promise<Response>;
 };
 export {};
