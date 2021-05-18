@@ -56,9 +56,7 @@ export const funreq = <T extends Schema>() => {
     MODEL extends SCHEMA["schema"]["models"],
     MODELK extends keyof MODEL,
     DOIT extends MODEL[MODELK]["doits"],
-    DOITK extends keyof DOIT,
-    GET extends DOIT[DOITK]["details"]["get"],
-    SET extends DOIT[DOITK]["details"]["set"]
+    DOITK extends keyof DOIT
   >(
     body: DOIT[DOITK] extends { details: never }
       ? {
@@ -72,7 +70,7 @@ export const funreq = <T extends Schema>() => {
             model: MODELK;
             doit: DOITK;
           };
-          details: { get?: GET; set?: SET };
+          details: DOIT[DOITK]["details"];
         },
     headers?: HeadersInit
   ) =>
