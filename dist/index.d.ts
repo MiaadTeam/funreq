@@ -1,6 +1,6 @@
 declare type RequestInfo = Request | string;
 declare type HeadersInit = Headers | string[][] | Record<string, string>;
-interface FunReq extends RequestInit {
+export interface FunReq extends RequestInit {
     url: RequestInfo;
 }
 declare type Schema = {
