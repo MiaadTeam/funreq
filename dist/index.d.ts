@@ -5,14 +5,18 @@ export interface FunReq extends RequestInit {
 }
 declare type Schema = {
     schema: {
-        models: {
+        contents: {
             [key: string]: {
-                doits: {
+                models: {
                     [key: string]: {
-                        details: {
-                            get?: unknown;
-                            set?: unknown;
-                        } | never;
+                        doits: {
+                            [key: string]: {
+                                details: {
+                                    get?: unknown;
+                                    set?: unknown;
+                                } | never;
+                            };
+                        };
                     };
                 };
             };
@@ -21,14 +25,16 @@ declare type Schema = {
 };
 export declare const funreq: <T extends Schema>() => {
     setup: (data: FunReq) => void;
-    api: <SCHEMA extends T, MODEL extends SCHEMA["schema"]["models"], MODELK extends keyof MODEL, DOIT extends MODEL[MODELK]["doits"], DOITK extends keyof DOIT>(body: DOIT[DOITK] extends {
+    api: <SCHEMA extends T, CONTENTS extends SCHEMA["schema"]["contents"], CONTENTSK extends keyof CONTENTS, MODEL extends CONTENTS[CONTENTSK]["models"], MODELK extends keyof MODEL, DOIT extends MODEL[MODELK]["doits"], DOITK extends keyof DOIT>(body: DOIT[DOITK] extends {
         details: never;
     } ? {
+        contents: CONTENTSK;
         wants: {
             model: MODELK;
             doit: DOITK;
         };
     } : {
+        contents: CONTENTSK;
         wants: {
             model: MODELK;
             doit: DOITK;
