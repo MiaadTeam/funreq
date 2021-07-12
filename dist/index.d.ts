@@ -3,6 +3,9 @@ declare type HeadersInit = Headers | string[][] | Record<string, string>;
 export interface FunReq extends RequestInit {
     url: RequestInfo;
 }
+interface HttpResponse<H> extends Response {
+    parsedBody?: H;
+}
 declare type Schema = {
     schema: {
         contents: {
@@ -25,7 +28,7 @@ declare type Schema = {
 };
 export declare const funreq: <T extends Schema>() => {
     setup: (data: FunReq) => void;
-    api: <SCHEMA extends T, CONTENTS extends SCHEMA["schema"]["contents"], CONTENTSK extends keyof CONTENTS, MODEL extends CONTENTS[CONTENTSK]["models"], MODELK extends keyof MODEL, DOIT extends MODEL[MODELK]["doits"], DOITK extends keyof DOIT>(body: DOIT[DOITK] extends {
+    api: <D>() => <CONTENTS extends T["schema"]["contents"], CONTENTSK extends keyof CONTENTS, MODEL extends CONTENTS[CONTENTSK]["models"], MODELK extends keyof MODEL, DOIT extends MODEL[MODELK]["doits"], DOITK extends keyof DOIT>(body: DOIT[DOITK] extends {
         details: never;
     } ? {
         contents: CONTENTSK;
@@ -40,6 +43,6 @@ export declare const funreq: <T extends Schema>() => {
             doit: DOITK;
         };
         details: DOIT[DOITK]["details"];
-    }, headers?: HeadersInit | undefined) => Promise<Response>;
+    }, headers?: HeadersInit | undefined) => Promise<HttpResponse<D>>;
 };
 export {};
