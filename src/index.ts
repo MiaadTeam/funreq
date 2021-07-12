@@ -1,5 +1,3 @@
-import { FunQL } from "../schema";
-
 type RequestInfo = Request | string;
 
 type HeadersInit = Headers | string[][] | Record<string, string>;
@@ -53,72 +51,53 @@ export const funreq = <T extends Schema>() => {
     };
   };
 
-  // type NonNullablePropertyKeys<T> = {
-  //   [P in keyof T]: null extends T[P] ? never : P
-  // }[keyof T];
-  //
-  // interface Body<T> {
-  // wants : {
-  //     model: keyof T["schema"]["models"]
-  //         }
-  //     }
+  const api =
+    <D>() =>
+    async <
+      CONTENTS extends T["schema"]["contents"],
+      CONTENTSK extends keyof CONTENTS,
+      MODEL extends CONTENTS[CONTENTSK]["models"],
+      MODELK extends keyof MODEL,
+      DOIT extends MODEL[MODELK]["doits"],
+      DOITK extends keyof DOIT
+    >(
+      body: DOIT[DOITK] extends { details: never }
+        ? {
+            contents: CONTENTSK;
+            wants: {
+              model: MODELK;
+              doit: DOITK;
+            };
+          }
+        : {
+            contents: CONTENTSK;
+            wants: {
+              model: MODELK;
+              doit: DOITK;
+            };
+            details: DOIT[DOITK]["details"];
+          },
+      headers?: HeadersInit
+    ) => {
+      const response: HttpResponse<D> = await fetch(setting.url, {
+        ...setting,
+        headers: {
+          ...setting.headers,
+          ...headers,
+        },
+        body: JSON.stringify(body),
+      });
 
-  type SCHEMA = T;
-  type CONTENTS = SCHEMA["schema"]["contents"];
-  type CONTENTSK = keyof CONTENTS;
-  type MODEL = CONTENTS[CONTENTSK]["models"];
-  type MODELK = keyof MODEL;
-  type DOIT = MODEL[MODELK]["doits"];
-  type DOITK = keyof DOIT;
+      try {
+        // may error if there is no body
+        response.parsedBody = await response.json();
+      } catch (ex) {}
 
-  type BODY = {
-    contents: CONTENTSK;
-    wants: {
-      model: MODELK;
-      doit: DOITK;
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      return response;
     };
-    details: DOIT[DOITK]["details"];
-  };
-
-  // type BODY = DOIT[DOITK] extends { details: never }
-  //   ? {
-  //       contents: CONTENTSK;
-  //       wants: {
-  //         model: MODELK;
-  //         doit: DOITK;
-  //       };
-  //     }
-  //   : {
-  //       contents: CONTENTSK;
-  //       wants: {
-  //         model: MODELK;
-  //         doit: DOITK;
-  //       };
-  //       details: DOIT[DOITK]["details"];
-  //     };
-
-  // type API = <D>(body: BODY, headers?: HeadersInit) => Promise<HttpResponse<D>>
-
-  const api = async <D>(body: BODY, headers?: HeadersInit) => {
-    const response: HttpResponse<D> = await fetch(setting.url, {
-      ...setting,
-      headers: {
-        ...setting.headers,
-        ...headers,
-      },
-      body: JSON.stringify(body),
-    });
-
-    try {
-      // may error if there is no body
-      response.parsedBody = await response.json();
-    } catch (ex) {}
-
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
-    return response;
-  };
 
   return {
     setup,
@@ -126,12 +105,33 @@ export const funreq = <T extends Schema>() => {
   };
 };
 
+/* One example of how yo use it
+
 const newApi = funreq<FunQL>();
 newApi.setup({ url: "http://localhost:8000/funql" });
 
-newApi.api({
-  contents: "static",
+interface BlogPosts {
+  _id: string,
+  name: string
+}
+
+const blogPosts = newApi.api<BlogPosts>()({
+  contents: "dynamic",
   wants: {
-    model: "",
+    model: "BlogPost",
+    doit: "getBlogPosts"
   },
+  details: {
+    set: {
+      pagination: {
+        page: 1,
+        limit: 10
+      }
+    },
+    get: {
+      _id: 0
+    }
+  }
 });
+
+*/
