@@ -1,9 +1,15 @@
+import { FunQL } from "../schema";
+
 type RequestInfo = Request | string;
 
 type HeadersInit = Headers | string[][] | Record<string, string>;
 
 export interface FunReq extends RequestInit {
   url: RequestInfo;
+}
+
+interface HttpResponse<H> extends Response {
+  parsedBody?: H;
 }
 
 type Schema = {
@@ -57,34 +63,44 @@ export const funreq = <T extends Schema>() => {
   //         }
   //     }
 
-  const api = async <
-    SCHEMA extends T,
-    CONTENTS extends SCHEMA["schema"]["contents"],
-    CONTENTSK extends keyof CONTENTS,
-    MODEL extends CONTENTS[CONTENTSK]["models"],
-    MODELK extends keyof MODEL,
-    DOIT extends MODEL[MODELK]["doits"],
-    DOITK extends keyof DOIT
-  >(
-    body: DOIT[DOITK] extends { details: never }
-      ? {
-          contents: CONTENTSK;
-          wants: {
-            model: MODELK;
-            doit: DOITK;
-          };
-        }
-      : {
-          contents: CONTENTSK;
-          wants: {
-            model: MODELK;
-            doit: DOITK;
-          };
-          details: DOIT[DOITK]["details"];
-        },
-    headers?: HeadersInit
-  ) =>
-    await fetch(setting.url, {
+  type SCHEMA = T;
+  type CONTENTS = SCHEMA["schema"]["contents"];
+  type CONTENTSK = keyof CONTENTS;
+  type MODEL = CONTENTS[CONTENTSK]["models"];
+  type MODELK = keyof MODEL;
+  type DOIT = MODEL[MODELK]["doits"];
+  type DOITK = keyof DOIT;
+
+  type BODY = {
+    contents: CONTENTSK;
+    wants: {
+      model: MODELK;
+      doit: DOITK;
+    };
+    details: DOIT[DOITK]["details"];
+  };
+
+  // type BODY = DOIT[DOITK] extends { details: never }
+  //   ? {
+  //       contents: CONTENTSK;
+  //       wants: {
+  //         model: MODELK;
+  //         doit: DOITK;
+  //       };
+  //     }
+  //   : {
+  //       contents: CONTENTSK;
+  //       wants: {
+  //         model: MODELK;
+  //         doit: DOITK;
+  //       };
+  //       details: DOIT[DOITK]["details"];
+  //     };
+
+  // type API = <D>(body: BODY, headers?: HeadersInit) => Promise<HttpResponse<D>>
+
+  const api = async <D>(body: BODY, headers?: HeadersInit) => {
+    const response: HttpResponse<D> = await fetch(setting.url, {
       ...setting,
       headers: {
         ...setting.headers,
@@ -93,8 +109,29 @@ export const funreq = <T extends Schema>() => {
       body: JSON.stringify(body),
     });
 
+    try {
+      // may error if there is no body
+      response.parsedBody = await response.json();
+    } catch (ex) {}
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    return response;
+  };
+
   return {
     setup,
     api,
   };
 };
+
+const newApi = funreq<FunQL>();
+newApi.setup({ url: "http://localhost:8000/funql" });
+
+newApi.api({
+  contents: "static",
+  wants: {
+    model: "",
+  },
+});
