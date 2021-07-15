@@ -6,7 +6,7 @@ export interface FunReq extends RequestInit {
   url: RequestInfo;
 }
 
-interface HttpResponse<H> extends Response {
+export interface HttpResponse<H> extends Response {
   parsedBody?: H;
 }
 
