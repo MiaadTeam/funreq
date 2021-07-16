@@ -66,7 +66,7 @@ var funreq = function () {
     };
     var api = function () {
         return function (body, headers) { return __awaiter(void 0, void 0, void 0, function () {
-            var response, _a, ex_1;
+            var response, _a, ex_1, msg;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, fetch(setting.url, __assign(__assign({}, setting), { headers: __assign(__assign({}, setting.headers), headers), body: JSON.stringify(body) }))];
@@ -84,12 +84,13 @@ var funreq = function () {
                         return [3 /*break*/, 5];
                     case 4:
                         ex_1 = _b.sent();
-                        return [3 /*break*/, 5];
+                        msg = ex_1.messages ? ex_1.messages : "we have problem to fetch";
+                        throw new Error(msg);
                     case 5:
                         if (!response.ok) {
                             throw new Error(response.statusText);
                         }
-                        return [2 /*return*/, response];
+                        return [2 /*return*/, response.body];
                 }
             });
         }); };

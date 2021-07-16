@@ -43,6 +43,6 @@ export declare const funreq: <T extends Schema>() => {
             doit: DOITK;
         };
         details: DOIT[DOITK]["details"];
-    }, headers?: HeadersInit | undefined) => Promise<HttpResponse<D>>;
+    }, headers?: HeadersInit | undefined) => Promise<ReadableStream<Uint8Array> | null>;
 };
 export {};
