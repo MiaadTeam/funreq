@@ -91,12 +91,15 @@ export const funreq = <T extends Schema>() => {
       try {
         // may error if there is no body
         response.parsedBody = await response.json();
-      } catch (ex) {}
+      } catch (ex) {
+        const msg = ex.messages ? ex.messages : "we have problem to fetch";
+        throw new Error(msg);
+      }
 
       if (!response.ok) {
         throw new Error(response.statusText);
       }
-      return response;
+      return response.body;
     };
 
   return {
