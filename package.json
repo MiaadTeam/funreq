@@ -1,6 +1,6 @@
 {
   "name": "@hemedani/funreq",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "an http to send and recive data from funql backend",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
