@@ -90,7 +90,7 @@ var funreq = function () {
                         if (!response.ok) {
                             throw new Error(response.statusText);
                         }
-                        return [2 /*return*/, response.body];
+                        return [2 /*return*/, response.parsedBody];
                 }
             });
         }); };
