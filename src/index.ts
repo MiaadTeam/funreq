@@ -99,7 +99,7 @@ export const funreq = <T extends Schema>() => {
       if (!response.ok) {
         throw new Error(response.statusText);
       }
-      return response.body;
+      return response.parsedBody;
     };
 
   return {
