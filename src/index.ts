@@ -135,11 +135,11 @@ export const funreq = <
 
 //One example of how yo use it
 
-const newApi = funreq<FunQL, response>();
-newApi.setup({ url: "http://localhost:8000/funql" });
+// const newApi = funreq<FunQL, response>();
+// newApi.setup({ url: "http://localhost:8000/funql" });
 
-newApi.api({
-  contents: "dynamic",
-  wants: { model: "Comment", doit: "getComment" },
-  details: { set: { _id: "" }, get: {} },
-});
+// const data  = newApi.api({
+//   contents: "dynamic",
+//   wants: { model: "Comment", doit: "getComment" },
+//   details: { set: { _id: "" }, get: {} },
+// });
