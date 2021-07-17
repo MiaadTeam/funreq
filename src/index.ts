@@ -1,3 +1,6 @@
+import { FunQL } from "../../newKaryan/packages/server/declarations/request/schema";
+import { response } from "../../newKaryan/packages/server/declarations/response/schema";
+
 type RequestInfo = Request | string;
 
 type HeadersInit = Headers | string[][] | Record<string, string>;
@@ -70,14 +73,15 @@ export const funreq = <
     };
   };
 
-  const api = () => async <
-    SCHEMA extends RequestSchema & ResponseSchema,
+  const api = async <
+    SCHEMA extends Req & Res,
     CONTENTS extends SCHEMA["schema"]["contents"],
     CONTENTSK extends keyof CONTENTS,
     MODEL extends CONTENTS[CONTENTSK]["models"],
     MODELK extends keyof MODEL,
     DOIT extends MODEL[MODELK]["doits"],
-    DOITK extends keyof DOIT
+    DOITK extends keyof DOIT,
+    RESPONSE extends DOIT[DOITK]["details"]["response"]
   >(
     body: DOIT[DOITK] extends { details: never }
       ? {
@@ -100,7 +104,7 @@ export const funreq = <
         },
     headers?: HeadersInit
   ) => {
-    const response: HttpResponse<D> = await fetch(setting.url, {
+    const response: HttpResponse<RESPONSE> = await fetch(setting.url, {
       ...setting,
       headers: {
         ...setting.headers,
@@ -129,33 +133,13 @@ export const funreq = <
   };
 };
 
-/* One example of how yo use it
+//One example of how yo use it
 
-const newApi = funreq<FunQL>();
+const newApi = funreq<FunQL, response>();
 newApi.setup({ url: "http://localhost:8000/funql" });
 
-interface BlogPosts {
-  _id: string,
-  name: string
-}
-
-const blogPosts = newApi.api<BlogPosts>()({
+newApi.api({
   contents: "dynamic",
-  wants: {
-    model: "BlogPost",
-    doit: "getBlogPosts"
-  },
-  details: {
-    set: {
-      pagination: {
-        page: 1,
-        limit: 10
-      }
-    },
-    get: {
-      _id: 0
-    }
-  }
+  wants: { model: "Comment", doit: "getComment" },
+  details: { set: { _id: "" }, get: {} },
 });
-
-*/
