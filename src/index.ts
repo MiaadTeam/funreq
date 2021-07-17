@@ -6,7 +6,7 @@ export interface FunReq extends RequestInit {
   url: RequestInfo;
 }
 
-type Schema = {
+type RequestSchema = {
   schema: {
     contents: {
       [key: string]: {
@@ -23,8 +23,27 @@ type Schema = {
     };
   };
 };
-
-export const funreq = <T extends Schema>() => {
+type ResponseSchema = {
+  schema: {
+    contents: {
+      [key: string]: {
+        models: {
+          [key: string]: {
+            doits: {
+              [key: string]: {
+                details: { response: unknown };
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+};
+export const funreq = <
+  Req extends RequestSchema,
+  Res extends ResponseSchema
+>() => {
   let setting: FunReq = {
     url: "http://localhost:3000/funql",
     method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -58,7 +77,7 @@ export const funreq = <T extends Schema>() => {
   //     }
 
   const api = async <
-    SCHEMA extends T,
+    SCHEMA extends Req & Res,
     CONTENTS extends SCHEMA["schema"]["contents"],
     CONTENTSK extends keyof CONTENTS,
     MODEL extends CONTENTS[CONTENTSK]["models"],
@@ -80,10 +99,13 @@ export const funreq = <T extends Schema>() => {
             model: MODELK;
             doit: DOITK;
           };
-          details: DOIT[DOITK]["details"];
+          details: {
+            set: DOIT[DOITK]["details"]["set"];
+            get: DOIT[DOITK]["details"]["get"];
+          };
         },
     headers?: HeadersInit
-  ) =>
+  ): Promise<DOIT[DOITK]["details"]["response"]> =>
     await fetch(setting.url, {
       ...setting,
       headers: {
