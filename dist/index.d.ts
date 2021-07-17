@@ -3,16 +3,23 @@ declare type HeadersInit = Headers | string[][] | Record<string, string>;
 export interface FunReq extends RequestInit {
     url: RequestInfo;
 }
+export interface HttpResponse<H> extends Response {
+    parsedBody?: H;
+}
 declare type Schema = {
     schema: {
-        models: {
+        contents: {
             [key: string]: {
-                doits: {
+                models: {
                     [key: string]: {
-                        details: {
-                            get?: unknown;
-                            set?: unknown;
-                        } | never;
+                        doits: {
+                            [key: string]: {
+                                details: {
+                                    get?: unknown;
+                                    set?: unknown;
+                                } | never;
+                            };
+                        };
                     };
                 };
             };
@@ -21,19 +28,21 @@ declare type Schema = {
 };
 export declare const funreq: <T extends Schema>() => {
     setup: (data: FunReq) => void;
-    api: <SCHEMA extends T, MODEL extends SCHEMA["schema"]["models"], MODELK extends keyof MODEL, DOIT extends MODEL[MODELK]["doits"], DOITK extends keyof DOIT>(body: DOIT[DOITK] extends {
+    api: <D>() => <CONTENTS extends T["schema"]["contents"], CONTENTSK extends keyof CONTENTS, MODEL extends CONTENTS[CONTENTSK]["models"], MODELK extends keyof MODEL, DOIT extends MODEL[MODELK]["doits"], DOITK extends keyof DOIT>(body: DOIT[DOITK] extends {
         details: never;
     } ? {
+        contents: CONTENTSK;
         wants: {
             model: MODELK;
             doit: DOITK;
         };
     } : {
+        contents: CONTENTSK;
         wants: {
             model: MODELK;
             doit: DOITK;
         };
         details: DOIT[DOITK]["details"];
-    }, headers?: HeadersInit | undefined) => Promise<Response>;
+    }, headers?: HeadersInit | undefined) => Promise<D | undefined>;
 };
 export {};
