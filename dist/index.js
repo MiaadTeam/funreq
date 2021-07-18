@@ -47,7 +47,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.funreq = void 0;
+exports.funreq = exports.throwErr = void 0;
+var throwErr = function (msg) {
+    throw new Error(msg);
+};
+exports.throwErr = throwErr;
 var funreq = function () {
     var setting = {
         url: "http://localhost:3000/funql",
@@ -64,70 +68,59 @@ var funreq = function () {
     var setup = function (data) {
         setting = __assign(__assign({}, setting), data);
     };
-    var api = function () {
-        return function (body, headers) { return __awaiter(void 0, void 0, void 0, function () {
-            var response, _a, ex_1, msg;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, fetch(setting.url, __assign(__assign({}, setting), { headers: __assign(__assign({}, setting.headers), headers), body: JSON.stringify(body) }))];
-                    case 1:
-                        response = _b.sent();
-                        _b.label = 2;
-                    case 2:
-                        _b.trys.push([2, 4, , 5]);
-                        // may error if there is no body
-                        _a = response;
-                        return [4 /*yield*/, response.json()];
-                    case 3:
-                        // may error if there is no body
-                        _a.parsedBody = _b.sent();
-                        return [3 /*break*/, 5];
-                    case 4:
-                        ex_1 = _b.sent();
-                        msg = ex_1.messages ? ex_1.messages : "we have problem to fetch";
-                        throw new Error(msg);
-                    case 5:
-                        if (!response.ok) {
-                            throw new Error(response.statusText);
-                        }
-                        return [2 /*return*/, response.parsedBody];
-                }
-            });
-        }); };
-    };
+    var api = function (body, headers) { return __awaiter(void 0, void 0, void 0, function () {
+        var response, parsedBody, ex_1, msg;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    return [4 /*yield*/, fetch(setting.url, __assign(__assign({}, setting), { headers: __assign(__assign({}, setting.headers), headers), body: JSON.stringify(body) }))];
+                case 1:
+                    response = _a.sent();
+                    if (!response.ok) {
+                        throw new Error(response.statusText);
+                    }
+                    return [4 /*yield*/, response.json()];
+                case 2:
+                    parsedBody = _a.sent();
+                    if (parsedBody.success === false) {
+                        throw new Error(parsedBody.body);
+                    }
+                    return [2 /*return*/, parsedBody];
+                case 3:
+                    ex_1 = _a.sent();
+                    msg = ex_1.messages ? ex_1.messages : "we have problem to fetch";
+                    exports.throwErr(msg);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); };
     return {
         setup: setup,
         api: api
     };
 };
 exports.funreq = funreq;
-/* One example of how yo use it
-
-const newApi = funreq<FunQL>();
-newApi.setup({ url: "http://localhost:8000/funql" });
-
-interface BlogPosts {
-  _id: string,
-  name: string
-}
-
-const blogPosts = newApi.api<BlogPosts>()({
-  contents: "dynamic",
-  wants: {
-    model: "BlogPost",
-    doit: "getBlogPosts"
-  },
-  details: {
-    set: {
-      pagination: {
-        page: 1,
-        limit: 10
-      }
-    },
-    get: {
-      _id: 0
-    }
-  }
-});
-
-*/
+//One example of how to use it
+// const newApi = funreq<FunQLRequest, FunQLResponseWithDetails>();
+// newApi.setup({ url: "http://localhost:8000/funql" });
+// export const getData = async () => {
+//   const data = await newApi.api({
+//     contents: "dynamic",
+//     wants: {
+//       model: "BlogCategory",
+//       doit: "createBlogCategory",
+//     },
+//     details: {
+//       set: {
+//         name: "kjsdh",
+//         enName: "ksdjhf",
+//         icon: "sdkjfh",
+//         description: "skdjfh",
+//       },
+//       get: {},
+//     },
+//   });
+//   return data;
+// };

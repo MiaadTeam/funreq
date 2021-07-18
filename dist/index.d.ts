@@ -3,10 +3,12 @@ declare type HeadersInit = Headers | string[][] | Record<string, string>;
 export interface FunReq extends RequestInit {
     url: RequestInfo;
 }
-export interface HttpResponse<H> extends Response {
-    parsedBody?: H;
+export interface FunQLResponse<T> {
+    success: boolean;
+    code?: number;
+    body: string | T;
 }
-declare type Schema = {
+declare type RequestSchema = {
     schema: {
         contents: {
             [key: string]: {
@@ -26,9 +28,29 @@ declare type Schema = {
         };
     };
 };
-export declare const funreq: <T extends Schema>() => {
+declare type ResponseSchema = {
+    schema: {
+        contents: {
+            [key: string]: {
+                models: {
+                    [key: string]: {
+                        doits: {
+                            [key: string]: {
+                                details: {
+                                    response: unknown;
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+};
+export declare const throwErr: (msg: string) => never;
+export declare const funreq: <Req extends RequestSchema, Res extends ResponseSchema>() => {
     setup: (data: FunReq) => void;
-    api: <D>() => <CONTENTS extends T["schema"]["contents"], CONTENTSK extends keyof CONTENTS, MODEL extends CONTENTS[CONTENTSK]["models"], MODELK extends keyof MODEL, DOIT extends MODEL[MODELK]["doits"], DOITK extends keyof DOIT>(body: DOIT[DOITK] extends {
+    api: <SCHEMA extends Req & Res, CONTENTS extends SCHEMA["schema"]["contents"], CONTENTSK extends keyof CONTENTS, MODEL extends CONTENTS[CONTENTSK]["models"], MODELK extends keyof MODEL, DOIT extends MODEL[MODELK]["doits"], DOITK extends keyof DOIT, RESPONSE extends DOIT[DOITK]["details"]["response"]>(body: DOIT[DOITK] extends {
         details: never;
     } ? {
         contents: CONTENTSK;
@@ -42,7 +64,10 @@ export declare const funreq: <T extends Schema>() => {
             model: MODELK;
             doit: DOITK;
         };
-        details: DOIT[DOITK]["details"];
-    }, headers?: HeadersInit | undefined) => Promise<D | undefined>;
+        details: {
+            set: DOIT[DOITK]["details"]["set"];
+            get: DOIT[DOITK]["details"]["get"];
+        };
+    }, headers?: HeadersInit | undefined) => Promise<FunQLResponse<RESPONSE> | undefined>;
 };
 export {};

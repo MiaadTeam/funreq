@@ -1,6 +1,3 @@
-import { FunQL } from "../../newKaryan/packages/server/declarations/request/schema";
-import { response } from "../../newKaryan/packages/server/declarations/response/schema";
-
 type RequestInfo = Request | string;
 
 type HeadersInit = Headers | string[][] | Record<string, string>;
@@ -9,8 +6,10 @@ export interface FunReq extends RequestInit {
   url: RequestInfo;
 }
 
-export interface HttpResponse<H> extends Response {
-  parsedBody?: H;
+export interface FunQLResponse<T> {
+  success: boolean;
+  code?: number;
+  body: string | T;
 }
 
 type RequestSchema = {
@@ -47,6 +46,11 @@ type ResponseSchema = {
     };
   };
 };
+
+export const throwErr = (msg: string) => {
+  throw new Error(msg);
+};
+
 export const funreq = <
   Req extends RequestSchema,
   Res extends ResponseSchema
@@ -104,27 +108,31 @@ export const funreq = <
         },
     headers?: HeadersInit
   ) => {
-    const response: HttpResponse<RESPONSE> = await fetch(setting.url, {
-      ...setting,
-      headers: {
-        ...setting.headers,
-        ...headers,
-      },
-      body: JSON.stringify(body),
-    });
-
     try {
+      const response = await fetch(setting.url, {
+        ...setting,
+        headers: {
+          ...setting.headers,
+          ...headers,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
       // may error if there is no body
-      response.parsedBody = await response.json();
+      const parsedBody: FunQLResponse<RESPONSE> = await response.json();
+
+      if (parsedBody.success === false) {
+        throw new Error(parsedBody.body as string);
+      }
+
+      return parsedBody;
     } catch (ex) {
       const msg = ex.messages ? ex.messages : "we have problem to fetch";
-      throw new Error(msg);
+      throwErr(msg);
     }
-
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
-    return response.parsedBody;
   };
 
   return {
@@ -133,13 +141,27 @@ export const funreq = <
   };
 };
 
-//One example of how yo use it
+//One example of how to use it
 
-// const newApi = funreq<FunQL, response>();
+// const newApi = funreq<FunQLRequest, FunQLResponseWithDetails>();
 // newApi.setup({ url: "http://localhost:8000/funql" });
 
-// const data  = newApi.api({
-//   contents: "dynamic",
-//   wants: { model: "Comment", doit: "getComment" },
-//   details: { set: { _id: "" }, get: {} },
-// });
+// export const getData = async () => {
+//   const data = await newApi.api({
+//     contents: "dynamic",
+//     wants: {
+//       model: "BlogCategory",
+//       doit: "createBlogCategory",
+//     },
+//     details: {
+//       set: {
+//         name: "kjsdh",
+//         enName: "ksdjhf",
+//         icon: "sdkjfh",
+//         description: "skdjfh",
+//       },
+//       get: {},
+//     },
+//   });
+//   return data;
+// };
