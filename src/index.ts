@@ -1,3 +1,5 @@
+import { SelectProjection, GetType } from "./type";
+
 type RequestInfo = Request | string;
 
 type HeadersInit = Headers | string[][] | Record<string, string>;
@@ -9,7 +11,7 @@ export interface FunReq extends RequestInit {
 export interface FunQLResponse<T> {
   success: boolean;
   code?: number;
-  body: string | T;
+  body: T;
 }
 
 type RequestSchema = {
@@ -78,32 +80,34 @@ export const funreq = <
   };
 
   const api = async <
-    SCHEMA extends Req & Res,
-    CONTENTS extends SCHEMA["schema"]["contents"],
-    CONTENTSK extends keyof CONTENTS,
-    MODEL extends CONTENTS[CONTENTSK]["models"],
-    MODELK extends keyof MODEL,
-    DOIT extends MODEL[MODELK]["doits"],
-    DOITK extends keyof DOIT,
-    RESPONSE extends DOIT[DOITK]["details"]["response"]
+    Schema extends Req & Res,
+    Content extends Schema["schema"]["contents"],
+    ContentKey extends keyof Content,
+    Model extends Content[ContentKey]["models"],
+    ModelKey extends keyof Model,
+    Doit extends Model[ModelKey]["doits"],
+    DoitKey extends keyof Doit,
+    Response extends Doit[DoitKey]["details"]["response"],
+    Set extends Doit[DoitKey]["details"]["set"],
+    Get extends GetType<Doit[DoitKey]["details"]["get"]>
   >(
-    body: DOIT[DOITK] extends { details: never }
+    body: Doit[DoitKey] extends { details: never }
       ? {
-          contents: CONTENTSK;
+          contents: ContentKey;
           wants: {
-            model: MODELK;
-            doit: DOITK;
+            model: ModelKey;
+            doit: DoitKey;
           };
         }
       : {
-          contents: CONTENTSK;
+          contents: ContentKey;
           wants: {
-            model: MODELK;
-            doit: DOITK;
+            model: ModelKey;
+            doit: DoitKey;
           };
           details: {
-            set: DOIT[DOITK]["details"]["set"];
-            get: DOIT[DOITK]["details"]["get"];
+            set: Set;
+            get: Get;
           };
         },
     headers?: HeadersInit
@@ -122,10 +126,12 @@ export const funreq = <
         throw new Error(response.statusText);
       }
       // may error if there is no body
-      const parsedBody: FunQLResponse<RESPONSE> = await response.json();
+      const parsedBody: FunQLResponse<
+        SelectProjection<Response, NonNullable<Get>>
+      > = await response.json();
 
       if (parsedBody.success === false) {
-        throw new Error(parsedBody.body as string);
+        throw new Error(String(parsedBody.body));
       }
 
       return parsedBody;
