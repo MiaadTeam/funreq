@@ -55,12 +55,9 @@ type ObjectKey<T> = {
  * @note its work in 2 steps 1.handle all fields that are zero or one in their values 2.handle object field recursively (the logic that is come after & operator )
  */
 export type SelectProjection<
-  T extends T extends Array<infer U>
-    ? Partial<Record<keyof Project, any>>
-    : any,
-  Project extends Partial<Record<keyof T, any>>,
-  ActualT = T extends Array<infer U> ? U : T
-> = Pick<ActualT, SelectProjectionKey<Required<ActualT>, Required<Project>>> &
+  T extends Partial<Record<keyof Project, any>>,
+  Project extends Partial<Record<keyof T, any>>
+> = Pick<T, SelectProjectionKey<Required<T>, Required<Project>>> &
   //handle all object field recursively
   { [P in ObjectKey<Required<Project>>]: SelectProjection<T[P], Project[P]> };
 
