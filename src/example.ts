@@ -9,19 +9,19 @@ export const getData = async () => {
   const data = await newApi.api({
     contents: "dynamic",
     wants: {
-      model: "BlogCategory",
-      doit: "createBlogCategory",
+      model: "User",
+      doit: "getUsers",
     },
     details: {
-      set: {
-        name: "kjsdh",
-        enName: "ksdjhf",
-        icon: "sdkjfh",
-        description: "skdjfh",
+      set: {},
+      get: {
+        _id: 1,
+        addresses: { city: { enName: 0, name: 0 } },
+        birthDate: 0,
+        email: 1,
+        isActive: 1,
       },
-      get: { updateAt: 1, blogPosts: { title: 1, summary: 1 } },
     },
   });
-  const b = data!.body.blogPosts[0];
-  b.map();
+  const b = data!.body[0].birthDate;
 };

@@ -1,4 +1,4 @@
-import { SelectProjection, GetType } from "./type";
+import { GetType, SelectProjection2 } from "./type copy";
 
 type RequestInfo = Request | string;
 
@@ -127,7 +127,7 @@ export const funreq = <
       }
       // may error if there is no body
       const parsedBody: FunQLResponse<
-        SelectProjection<Response, NonNullable<Get>>
+        SelectProjection2<Response, NonNullable<Get>>
       > = await response.json();
 
       if (parsedBody.success === false) {
