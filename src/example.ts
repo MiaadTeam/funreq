@@ -14,11 +14,17 @@ export const getData = async () => {
       doit: "getUsers",
     },
     details: {
-      set: {},
+      set: { lastName: "" },
       get: {
-        addresses: { country: { enName: 1, name: 1, cities: { _id: 1, name: 1 } } },
+        name: 0,
+        _id: 1,
+        lastName: 0,
+        isActive: 0,
+        phone: 0,
+        postalCode: 0,
+        gender: 0
       },
     },
   });
-  const b = (data!.body[0].addresses.country.cities)[0].
+  const b = data!.body[0].
 };

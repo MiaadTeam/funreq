@@ -1,11 +1,24 @@
+/**
+ * a type alias extract all field that is pure (means is not objects)
+ * @remark it ignore _id field
+ */
 type GetPureTypeWithoutId<T> = NewPick<T, GetPureTypeKeyWithoutId<Required<T>>>;
 
+/**
+ * a type alias for getting all pure field keys (means type of fields are not object and also ignore _id field)
+ */
 type GetPureTypeKeyWithoutId<T> = {
   [K in keyof T]: T[K] extends object ? never : K extends "_id" ? never : K;
 }[keyof T];
 
+/**
+ * a type alias extract all field that is pure (means is not objects)
+ */
 type GetPureType<T> = NewPick<T, GetPureTypeKey<Required<T>>>;
 
+/**
+ * a type alias for getting all pure field keys (means type of fields are not object
+ */
 type GetPureTypeKey<T> = {
   [K in keyof T]: T[K] extends object ? (T[K] extends Date ? K : never) : K;
 }[keyof T];
@@ -14,7 +27,7 @@ type GetPureTypeKey<T> = {
  * a type alias for find out whether this projection is one base or zero base
  * @remark it ignore _id field according to document of mongodb in behaves with _id field
  * @remark it does not checks projection is valid or not if projection is invalid (for example mix of wrong zeros and ones) it assumes projection is one base
- * @type {true | false}
+ * @returns {true | false}
  */
 type IsProjectionZeroBase<T extends Record<string, any>> =
   T[keyof GetPureTypeWithoutId<T>] extends 0 ? true : false;
@@ -82,6 +95,75 @@ export type SelectProjection<
  * if we use get object directly in argument of funreq we can not give selected project of client so we define a type for achieve it
  * @note if we user get directly it return Partial of schema mainly without consider to selection of client
  */
-export type GetType<T> = {
-  [P in keyof T]: 0 | 1 | GetType<T[P]>;
+export type GetType<T, RT = Required<T>> = {
+  [P in keyof RT]?: RT[P] extends object ? GetType<RT[P]> : 0 | 1;
+};
+
+type RequestInfo = Request | string;
+
+type HeadersInit = Headers | string[][] | Record<string, string>;
+
+export interface FunReq extends RequestInit {
+  url: RequestInfo;
+}
+
+/**
+ * @interface
+ * funql response form
+ * @remark type of body is string when  {@link FunQLResponse#success} is false and type of body is T when {@link FunQLResponse#success} is true
+ */
+export interface FunQLResponse<T> {
+  success: boolean;
+  code?: number;
+  body: T | string;
+}
+
+/**
+ * @interface
+ * funql response form  when we ensure response is success
+ */
+export interface FunQLResponseSuccuss<T> {
+  success: boolean;
+  code?: number;
+  body: T;
+}
+/**
+ * request type of funql
+ */
+export type RequestSchema = {
+  schema: {
+    contents: {
+      [key: string]: {
+        models: {
+          [key: string]: {
+            doits: {
+              [key: string]: {
+                details: { get?: unknown; set?: unknown } | never;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+};
+/**
+ * response type of body in funql
+ */
+export type ResponseSchema = {
+  schema: {
+    contents: {
+      [key: string]: {
+        models: {
+          [key: string]: {
+            doits: {
+              [key: string]: {
+                details: { response: unknown };
+              };
+            };
+          };
+        };
+      };
+    };
+  };
 };

@@ -1,63 +1,13 @@
-import { GetType, SelectProjection } from "./types";
-
-type RequestInfo = Request | string;
-
-type HeadersInit = Headers | string[][] | Record<string, string>;
-
-export interface FunReq extends RequestInit {
-  url: RequestInfo;
-}
-
-export interface FunQLResponse<T> {
-  success: boolean;
-  code?: number;
-  body: T | string;
-}
-
-export interface FunQLResponseSuccuss<T> {
-  success: boolean;
-  code?: number;
-  body: T;
-}
-
-type RequestSchema = {
-  schema: {
-    contents: {
-      [key: string]: {
-        models: {
-          [key: string]: {
-            doits: {
-              [key: string]: {
-                details: { get?: unknown; set?: unknown } | never;
-              };
-            };
-          };
-        };
-      };
-    };
-  };
-};
-type ResponseSchema = {
-  schema: {
-    contents: {
-      [key: string]: {
-        models: {
-          [key: string]: {
-            doits: {
-              [key: string]: {
-                details: { response: unknown };
-              };
-            };
-          };
-        };
-      };
-    };
-  };
-};
-
-export const throwErr = (msg: string) => {
-  throw new Error(msg);
-};
+import {
+  FunQLResponse,
+  FunQLResponseSuccuss,
+  FunReq,
+  GetType,
+  RequestSchema,
+  ResponseSchema,
+  SelectProjection,
+} from "./types";
+import { isRequestSuccess, throwError } from "./utils";
 
 export const funreq = <
   Req extends RequestSchema,
@@ -131,16 +81,18 @@ export const funreq = <
       if (!response.ok) {
         throw new Error(response.statusText);
       }
+
       // may error if there is no body
       const parsedBody: FunQLResponse<SelectProjection<Response, Get>> =
         await response.json();
 
+      //it return response if response is success or throw error if response is invalid
       return isRequestSuccess(parsedBody)
         ? parsedBody
-        : throwErr(String(response.body));
+        : throwError(String(response.body));
     } catch (ex) {
       const msg = ex.messages ? ex.messages : "we have problem to fetch";
-      return throwErr(msg);
+      return throwError(msg);
     }
   };
 
@@ -148,14 +100,4 @@ export const funreq = <
     setup,
     api,
   };
-};
-
-const isRequestSuccess = <T>(
-  response: FunQLResponse<T>
-): response is FunQLResponseSuccuss<T> => {
-  if (response.success === false) {
-    return false;
-  } else {
-    return true;
-  }
 };
