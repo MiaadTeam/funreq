@@ -1,4 +1,4 @@
-import { GetType, SelectProjection2 } from "./type copy";
+import { GetType, SelectProjection } from "./types";
 
 type RequestInfo = Request | string;
 
@@ -9,6 +9,12 @@ export interface FunReq extends RequestInit {
 }
 
 export interface FunQLResponse<T> {
+  success: boolean;
+  code?: number;
+  body: T | string;
+}
+
+export interface FunQLResponseSuccuss<T> {
   success: boolean;
   code?: number;
   body: T;
@@ -126,18 +132,15 @@ export const funreq = <
         throw new Error(response.statusText);
       }
       // may error if there is no body
-      const parsedBody: FunQLResponse<
-        SelectProjection2<Response, NonNullable<Get>>
-      > = await response.json();
+      const parsedBody: FunQLResponse<SelectProjection<Response, Get>> =
+        await response.json();
 
-      if (parsedBody.success === false) {
-        throw new Error(String(parsedBody.body));
-      }
-
-      return parsedBody;
+      return isRequestSuccess(parsedBody)
+        ? parsedBody
+        : throwErr(String(response.body));
     } catch (ex) {
       const msg = ex.messages ? ex.messages : "we have problem to fetch";
-      throwErr(msg);
+      return throwErr(msg);
     }
   };
 
@@ -147,27 +150,12 @@ export const funreq = <
   };
 };
 
-//One example of how to use it
-
-// const newApi = funreq<FunQLRequest, FunQLResponseWithDetails>();
-// newApi.setup({ url: "http://localhost:8000/funql" });
-
-// export const getData = async () => {
-//   const data = await newApi.api({
-//     contents: "dynamic",
-//     wants: {
-//       model: "BlogCategory",
-//       doit: "createBlogCategory",
-//     },
-//     details: {
-//       set: {
-//         name: "kjsdh",
-//         enName: "ksdjhf",
-//         icon: "sdkjfh",
-//         description: "skdjfh",
-//       },
-//       get: {},
-//     },
-//   });
-//   return data;
-// };
+const isRequestSuccess = <T>(
+  response: FunQLResponse<T>
+): response is FunQLResponseSuccuss<T> => {
+  if (response.success === false) {
+    return false;
+  } else {
+    return true;
+  }
+};

@@ -1,6 +1,7 @@
 import { funreq } from ".";
 import { FunQLResponseWithDetails } from "./declarations/response/schema";
 import { FunQLRequest } from "./declarations/request/schema";
+import { FQl_dynamic_city_ICity } from "./declarations/schema/schema";
 
 const newApi = funreq<FunQLRequest, FunQLResponseWithDetails>();
 newApi.setup({ url: "http://localhost:8000/funql" });
@@ -15,13 +16,9 @@ export const getData = async () => {
     details: {
       set: {},
       get: {
-        _id: 1,
-        addresses: { city: { enName: 0, name: 0 } },
-        birthDate: 0,
-        email: 1,
-        isActive: 1,
+        addresses: { country: { enName: 1, name: 1, cities: { _id: 1, name: 1 } } },
       },
     },
   });
-  const b = data!.body[0].birthDate;
+  const b = (data!.body[0].addresses.country.cities)[0].
 };
