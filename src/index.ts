@@ -43,11 +43,12 @@ export const funreq = <
     ModelKey extends keyof Model,
     Doit extends Model[ModelKey]["doits"],
     DoitKey extends keyof Doit,
-    Details extends Doit[DoitKey]["details"],
     Response extends Doit[DoitKey]["details"]["response"],
     Set extends Doit[DoitKey]["details"]["set"],
     Get extends GetType<Doit[DoitKey]["details"]["get"]>,
-    SelectedResponse extends Get | Details extends never
+    SelectedResponse extends Doit[DoitKey]["details"]["get"] extends
+      | never
+      | undefined
       ? Response
       : SelectProjection<Response, Get>
   >(
@@ -67,7 +68,7 @@ export const funreq = <
           };
           details: {
             set: Set;
-            get: Get;
+            get?: Get;
           };
         },
     headers?: HeadersInit

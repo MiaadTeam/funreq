@@ -8,17 +8,12 @@ newApi.setup({ url: "http://localhost:8000/funql" });
 
 export const getData = async () => {
   const data = await newApi.api({
-    contents: "dynamic",
+    contents: "static",
     wants: {
-      model: "User",
-      doit: "getUsers",
+      model: "StoreHomePage",
+      doit: "getStoreHomePage",
     },
-    details: {
-      set: { lastName: "" },
-      get: {
-        _id: 1,
-      },
-    },
+    details: { set: {} },
   });
-  const b = data.body[0]._id;
+  const b = data.body.promotionWares[0];
 };
