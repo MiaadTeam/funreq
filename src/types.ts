@@ -30,7 +30,7 @@ type GetPureTypeKey<T> = {
  * @returns {true | false}
  */
 type IsProjectionZeroBase<T extends Record<string, any>> =
-  T[keyof GetPureTypeWithoutId<T>] extends 0 ? true : false;
+  T[keyof GetPureTypeWithoutId<T>] extends 1 ? false : true;
 
 /**
  * finds all keys that in T that onw type is object

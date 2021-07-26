@@ -16,15 +16,9 @@ export const getData = async () => {
     details: {
       set: { lastName: "" },
       get: {
-        name: 0,
         _id: 1,
-        lastName: 0,
-        isActive: 0,
-        phone: 0,
-        postalCode: 0,
-        gender: 0
       },
     },
   });
-  const b = data!.body[0].
+  const b = data.body[0]._id;
 };

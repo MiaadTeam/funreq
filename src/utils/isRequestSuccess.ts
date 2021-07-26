@@ -1,4 +1,8 @@
-import { FunQLResponse, FunQLResponseSuccuss } from "../types";
+import {
+  FunQLResponse,
+  FunQLResponseSuccuss,
+  SelectProjection,
+} from "../types";
 
 /**
  * @function
@@ -8,4 +12,6 @@ import { FunQLResponse, FunQLResponseSuccuss } from "../types";
  */
 export const isRequestSuccess = <T>(
   response: FunQLResponse<T>
-): response is FunQLResponseSuccuss<T> => response.success === true;
+): response is FunQLResponseSuccuss<
+  T extends SelectProjection<infer R, infer U> ? T : T
+> => response.success === true;

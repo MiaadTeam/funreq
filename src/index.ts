@@ -43,9 +43,13 @@ export const funreq = <
     ModelKey extends keyof Model,
     Doit extends Model[ModelKey]["doits"],
     DoitKey extends keyof Doit,
+    Details extends Doit[DoitKey]["details"],
     Response extends Doit[DoitKey]["details"]["response"],
     Set extends Doit[DoitKey]["details"]["set"],
-    Get extends GetType<Doit[DoitKey]["details"]["get"]>
+    Get extends GetType<Doit[DoitKey]["details"]["get"]>,
+    SelectedResponse extends Get | Details extends never
+      ? Response
+      : SelectProjection<Response, Get>
   >(
     body: Doit[DoitKey] extends { details: never }
       ? {
@@ -83,8 +87,7 @@ export const funreq = <
       }
 
       // may error if there is no body
-      const parsedBody: FunQLResponse<SelectProjection<Response, Get>> =
-        await response.json();
+      const parsedBody: FunQLResponse<SelectedResponse> = await response.json();
 
       //it return response if response is success or throw error if response is invalid
       return isRequestSuccess(parsedBody)
@@ -101,3 +104,5 @@ export const funreq = <
     api,
   };
 };
+
+type StrictProjection<T> = T extends 0 ? 0 : 1;
