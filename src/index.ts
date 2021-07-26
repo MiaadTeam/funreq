@@ -105,5 +105,3 @@ export const funreq = <
     api,
   };
 };
-
-type StrictProjection<T> = T extends 0 ? 0 : 1;

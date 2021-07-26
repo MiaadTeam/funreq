@@ -1,7 +1,7 @@
+//this file is not include to index and do not effect on running index.ts
 import { funreq } from ".";
 import { FunQLResponseWithDetails } from "./declarations/response/schema";
 import { FunQLRequest } from "./declarations/request/schema";
-import { FQl_dynamic_city_ICity } from "./declarations/schema/schema";
 
 const newApi = funreq<FunQLRequest, FunQLResponseWithDetails>();
 newApi.setup({ url: "http://localhost:8000/funql" });
