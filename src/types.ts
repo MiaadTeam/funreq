@@ -95,12 +95,16 @@ export type SelectProjection<
  * if we use get object directly in argument of funreq we can not give selected project of client so we define a type for achieve it
  * @note if we user get directly it return Partial of schema mainly without consider to selection of client
  */
-export type GetType<T, RT = Required<T>> = RT extends never | undefined
+export type ObtainSelectedGetType<T, RT = Required<T>> = RT extends
+  | never
+  | undefined
   ? never
   : RT extends undefined | null
   ? undefined
   : {
-      [P in keyof RT]?: RT[P] extends object ? GetType<RT[P]> : 0 | 1;
+      [P in keyof RT]?: RT[P] extends object
+        ? ObtainSelectedGetType<RT[P]>
+        : 0 | 1;
     };
 
 type RequestInfo = Request | string;

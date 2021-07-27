@@ -3,7 +3,7 @@ import { funreq } from ".";
 import { FunQLResponseWithDetails } from "./declarations/response/schema";
 import { FunQLRequest } from "./declarations/request/schema";
 
-const newApi = funreq<FunQLRequest, FunQLResponseWithDetails, true>();
+const newApi = funreq<FunQLRequest, FunQLResponseWithDetails, false>();
 newApi.setup({ url: "http://localhost:8000/funql" });
 
 export const getData = async () => {
@@ -15,7 +15,7 @@ export const getData = async () => {
     },
     details: {
       set: { name: "", enName: "", description: "" },
-      get: { _id: 1, updateAt: 1 },
+      get: { _id: 1, updateAt: 1, enName: 0 },
     },
   });
   const b = data.body.enName;

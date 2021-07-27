@@ -1,8 +1,7 @@
 import {
   FunQLResponse,
-  FunQLResponseSuccuss,
   FunReq,
-  GetType as ObtainSelectedGetType,
+  ObtainSelectedGetType,
   RequestSchema,
   ResponseSchema,
   SelectProjection,
