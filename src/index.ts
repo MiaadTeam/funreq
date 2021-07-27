@@ -2,7 +2,7 @@ import {
   FunQLResponse,
   FunQLResponseSuccuss,
   FunReq,
-  GetType,
+  GetType as ObtainSelectedGetType,
   RequestSchema,
   ResponseSchema,
   SelectProjection,
@@ -11,7 +11,8 @@ import { isRequestSuccess, throwError } from "./utils";
 
 export const funreq = <
   Req extends RequestSchema,
-  Res extends ResponseSchema
+  Res extends ResponseSchema,
+  UseSelectProjection extends true | false = true
 >() => {
   let setting: FunReq = {
     url: "http://localhost:3000/funql",
@@ -43,12 +44,15 @@ export const funreq = <
     ModelKey extends keyof Model,
     Doit extends Model[ModelKey]["doits"],
     DoitKey extends keyof Doit,
-    Response extends Doit[DoitKey]["details"]["response"],
-    Set extends Doit[DoitKey]["details"]["set"],
-    Get extends GetType<Doit[DoitKey]["details"]["get"]>,
-    SelectedResponse extends Doit[DoitKey]["details"]["get"] extends
-      | never
-      | undefined
+    Details extends Doit[DoitKey]["details"],
+    Response extends Details["response"],
+    Set extends Details["set"],
+    Get extends UseSelectProjection extends false
+      ? Details["get"]
+      : ObtainSelectedGetType<Details["get"]>,
+    SelectedResponse extends UseSelectProjection extends false
+      ? Response
+      : Doit[DoitKey]["details"]["get"] extends never | undefined
       ? Response
       : SelectProjection<Response, Get>
   >(

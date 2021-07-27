@@ -3,17 +3,20 @@ import { funreq } from ".";
 import { FunQLResponseWithDetails } from "./declarations/response/schema";
 import { FunQLRequest } from "./declarations/request/schema";
 
-const newApi = funreq<FunQLRequest, FunQLResponseWithDetails>();
+const newApi = funreq<FunQLRequest, FunQLResponseWithDetails, true>();
 newApi.setup({ url: "http://localhost:8000/funql" });
 
 export const getData = async () => {
   const data = await newApi.api({
-    contents: "static",
+    contents: "dynamic",
     wants: {
-      model: "StoreHomePage",
-      doit: "getStoreHomePage",
+      model: "BlogCategory",
+      doit: "createBlogCategory",
     },
-    details: { set: {} },
+    details: {
+      set: { name: "", enName: "", description: "" },
+      get: { _id: 1, updateAt: 1 },
+    },
   });
-  const b = data.body.promotionWares[0];
+  const b = data.body.enName;
 };
