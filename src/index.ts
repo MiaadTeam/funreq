@@ -87,7 +87,7 @@ export const funreq = <
       });
 
       if (!response.ok) {
-        throw new Error(response.statusText);
+        throw new Error(await response.json());
       }
 
       // may error if there is no body
